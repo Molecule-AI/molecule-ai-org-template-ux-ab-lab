@@ -1,0 +1,92 @@
+# UX A/B Lab — rapid landing-page variant generation for conversion testing.
+#
+# 7-agent cell tuned for one job: ship 100 landing-page variants fast,
+# with clean SEO + a11y + perf defaults, and deploy each one on Vercel
+# behind a per-variant URL so the user's traffic-split tool (GrowthBook,
+# VWO, Google Optimize, etc.) can fan real traffic at them.
+
+name: UX A/B Lab
+description: >
+  Seven-agent cell that generates, audits, and deploys 100 landing-page
+  variants for A/B testing on Vercel. Director owns the backlog;
+  researcher mines competitors + copy angles; designer drafts visuals;
+  React engineer implements; deploy engineer ships to Vercel previews;
+  a11y+SEO auditor gates duplicate-content/canonical/noindex decisions;
+  perf auditor watches Core Web Vitals on each variant.
+
+# Org-level env requirements. Uses the any_of union form — either an
+# Anthropic API key OR a Claude Code OAuth token satisfies the agent
+# runtime credential, so a user on a Claude subscription plan doesn't
+# need to also acquire a separate API key.
+required_env:
+  - any_of:
+      - ANTHROPIC_API_KEY
+      - CLAUDE_CODE_OAUTH_TOKEN
+
+# Recommended tier — import proceeds without these, but features
+# degrade:
+#   - SERPER_API_KEY: competitor research + SERP feature detection.
+#     Researcher falls back to web_fetch alone if absent (slower,
+#     less structured).
+#   - VERCEL_TOKEN: lets the deploy engineer push variant builds to
+#     Vercel previews programmatically. Without it the deploy agent
+#     can still generate the build artifact for manual upload.
+recommended_env:
+  - SERPER_API_KEY
+  - VERCEL_TOKEN
+
+defaults:
+  runtime: claude-code
+  tier: 3
+  model: sonnet
+  initial_prompt: |
+    You just started. Set up silently — do NOT contact other agents yet.
+    1. Read /configs/system-prompt.md — this defines YOUR role
+    2. Use commit_memory to save your role summary and the variant
+       numbering scheme (v001-v100)
+    3. Wait for the Design Director's kickoff brief.
+
+workspaces:
+  - name: Design Director
+    role: Owns the variant backlog, quality bar, and the per-variant hypothesis. Fans work to the cell and reviews every shipped variant.
+    files_dir: design-director
+    workspace_dir: /workspace/demo/design-director
+    canvas: { x: 500, y: 40 }
+    children:
+      - name: UX Researcher
+        role: Competitor teardowns, copy-angle mining, value-prop mapping, hypothesis feed.
+        files_dir: ux-researcher
+        workspace_dir: /workspace/demo/ux-researcher
+        canvas: { x: 100, y: 200 }
+
+      - name: Visual Designer
+        role: Per-variant visual direction — layout, hierarchy, type pairings, hero treatments. Hands a drafted spec to the React engineer.
+        files_dir: visual-designer
+        workspace_dir: /workspace/demo/visual-designer
+        canvas: { x: 260, y: 200 }
+
+      - name: React Engineer
+        role: Implements each variant as a Next.js route — /v001, /v002, … — sharing components but swapping hero, CTA copy, proof elements per the spec.
+        files_dir: react-engineer
+        workspace_dir: /workspace/demo/react-engineer
+        canvas: { x: 420, y: 200 }
+
+      - name: Deploy Engineer
+        role: Per-variant Vercel preview URLs, rollback, and env-var wiring. Publishes the URL table the traffic-split tool points at.
+        files_dir: deploy-engineer
+        workspace_dir: /workspace/demo/deploy-engineer
+        canvas: { x: 580, y: 200 }
+
+      - name: A11y + SEO Auditor
+        role: WCAG 2.2 AA + SEO gate. Enforces the canonical/noindex strategy that keeps Google from penalising duplicate content across variants.
+        files_dir: a11y-seo-auditor
+        workspace_dir: /workspace/demo/a11y-seo-auditor
+        canvas: { x: 740, y: 200 }
+
+      - name: Perf Auditor
+        role: Core Web Vitals gate — LCP, INP, CLS — per variant. Flags any variant that regresses the baseline before it ships.
+        files_dir: perf-auditor
+        workspace_dir: /workspace/demo/perf-auditor
+        canvas: { x: 900, y: 200 }
+
+template_schema_version: 1
