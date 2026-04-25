@@ -1,18 +1,24 @@
-# UX A/B Lab — rapid landing-page variant generation for conversion testing.
+# UX A/B Lab — 10 radically different landing-page concepts.
 #
-# 7-agent cell tuned for one job: ship 100 landing-page variants fast,
-# with clean SEO + a11y + perf defaults, and deploy each one on Vercel
-# behind a per-variant URL so the user's traffic-split tool (GrowthBook,
-# VWO, Google Optimize, etc.) can fan real traffic at them.
+# 7-agent cell that ships TEN concept-distinct landing pages for the
+# same product, then deploys each at a stable URL on Vercel so a
+# traffic-split tool can probe which design + framing actually
+# converts. Not A/B nudges (hero copy tweak, CTA color swap) — these
+# are full-spectrum design swings: different visual systems, type
+# pairings, layouts, narrative orderings, and audience framings, each
+# defensible as its own coherent take on the brand.
 
 name: UX A/B Lab
 description: >
-  Seven-agent cell that generates, audits, and deploys 100 landing-page
-  variants for A/B testing on Vercel. Director owns the backlog;
-  researcher mines competitors + copy angles; designer drafts visuals;
-  React engineer implements; deploy engineer ships to Vercel previews;
-  a11y+SEO auditor gates duplicate-content/canonical/noindex decisions;
-  perf auditor watches Core Web Vitals on each variant.
+  Seven-agent cell that designs, builds, and deploys ten radically
+  different landing-page concepts for the same product — distinct
+  visual systems, layouts, type, and narrative — published to Vercel
+  for live traffic-split testing. Director sets the ten directions;
+  researcher feeds market angles; visual designer drafts each
+  concept's spec; React engineer implements as a Next.js route per
+  concept; deploy engineer ships and publishes the URL table; a11y +
+  SEO auditor enforces accessibility and the multi-variant canonical
+  strategy; perf auditor gates Core Web Vitals per concept.
 
 # Org-level env requirements. Uses the any_of union form — either an
 # Anthropic API key OR a Claude Code OAuth token satisfies the agent
@@ -43,48 +49,48 @@ defaults:
     You just started. Set up silently — do NOT contact other agents yet.
     1. Read /configs/system-prompt.md — this defines YOUR role
     2. Use commit_memory to save your role summary and the variant
-       numbering scheme (v001-v100)
+       numbering scheme (v01-v10)
     3. Wait for the Design Director's kickoff brief.
 
 workspaces:
   - name: Design Director
-    role: Owns the variant backlog, quality bar, and the per-variant hypothesis. Fans work to the cell and reviews every shipped variant.
+    role: Owns the ten concept directions. Each direction is a defensible, distinct take — different audience framing, visual system, narrative. Reviews every shipped concept.
     files_dir: design-director
     workspace_dir: /workspace/demo/design-director
     canvas: { x: 500, y: 40 }
     children:
       - name: UX Researcher
-        role: Competitor teardowns, copy-angle mining, value-prop mapping, hypothesis feed.
+        role: Competitor teardowns, audience framings, narrative angles. Feeds the director ten distinct strategic positions to anchor the ten concepts.
         files_dir: ux-researcher
         workspace_dir: /workspace/demo/ux-researcher
         canvas: { x: 100, y: 200 }
 
       - name: Visual Designer
-        role: Per-variant visual direction — layout, hierarchy, type pairings, hero treatments. Hands a drafted spec to the React engineer.
+        role: One full visual spec per concept — palette, type pairing, layout system, hero treatment, photography/illustration direction. Each spec is its own coherent design language.
         files_dir: visual-designer
         workspace_dir: /workspace/demo/visual-designer
         canvas: { x: 260, y: 200 }
 
       - name: React Engineer
-        role: Implements each variant as a Next.js route — /v001, /v002, … — sharing components but swapping hero, CTA copy, proof elements per the spec.
+        role: Implements each concept as a Next.js route — /v01..../v10 — with its own component composition, tokens, and copy. Concepts share infrastructure (routing, analytics) but NOT visual code.
         files_dir: react-engineer
         workspace_dir: /workspace/demo/react-engineer
         canvas: { x: 420, y: 200 }
 
       - name: Deploy Engineer
-        role: Per-variant Vercel preview URLs, rollback, and env-var wiring. Publishes the URL table the traffic-split tool points at.
+        role: Publishes ten stable Vercel URLs and the URL table the traffic-split tool consumes. Owns rollback per concept.
         files_dir: deploy-engineer
         workspace_dir: /workspace/demo/deploy-engineer
         canvas: { x: 580, y: 200 }
 
       - name: A11y + SEO Auditor
-        role: WCAG 2.2 AA + SEO gate. Enforces the canonical/noindex strategy that keeps Google from penalising duplicate content across variants.
+        role: WCAG 2.2 AA gate per concept (each concept's color/contrast is independent). SEO canonical strategy if all ten target the same audience and keyword cluster.
         files_dir: a11y-seo-auditor
         workspace_dir: /workspace/demo/a11y-seo-auditor
         canvas: { x: 740, y: 200 }
 
       - name: Perf Auditor
-        role: Core Web Vitals gate — LCP, INP, CLS — per variant. Flags any variant that regresses the baseline before it ships.
+        role: Core Web Vitals gate — LCP, INP, CLS — per concept. Each concept has its own perf budget; the bar is "no concept regresses the canonical baseline by more than 20%".
         files_dir: perf-auditor
         workspace_dir: /workspace/demo/perf-auditor
         canvas: { x: 900, y: 200 }

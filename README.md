@@ -1,17 +1,19 @@
 # ux-ab-lab
 
-Seven-agent cell for rapid landing-page A/B variant generation on Vercel. Ship 100 variants, one hypothesis per variant, with SEO + a11y + perf gates that prevent the usual A/B traps (duplicate content, CLS regressions, token sprawl).
+Seven-agent cell that ships **10 radically different landing-page concepts** for the same product, then deploys each to its own URL on Vercel for live traffic-split testing.
+
+Not A/B nudges. Not "same hero, different CTA color". The ten are full-spectrum design swings — different audience framings, different visual systems (palette, type, layout, motion), different narrative orderings — each defensible as its own coherent take.
 
 ## Structure (7 workspaces)
 
 ```
 Design Director
-├── UX Researcher            ← angles, competitor teardowns, copy mining
-├── Visual Designer          ← per-variant layout spec (markdown)
-├── React Engineer           ← /vNNN routes, shared component library
-├── Deploy Engineer          ← Vercel publish, URL table, rollback
-├── A11y + SEO Auditor       ← WCAG AA + canonical/noindex gate
-└── Perf Auditor             ← Core Web Vitals gate per variant
+├── UX Researcher            ← competitor archetypes, audience framings, mood references
+├── Visual Designer          ← per-concept spec (palette / type / layout / motion)
+├── React Engineer           ← /v01../v10 routes, no shared visual code
+├── Deploy Engineer          ← Vercel publish, URL table, per-concept rollback
+├── A11y + SEO Auditor       ← WCAG AA per concept + canonical strategy decision
+└── Perf Auditor             ← Core Web Vitals per concept against per-concept baseline
 ```
 
 ## Env
@@ -21,25 +23,24 @@ Required: **one of**
 - `CLAUDE_CODE_OAUTH_TOKEN` *(Claude subscription — no API key needed)*
 
 Recommended:
-- `SERPER_API_KEY` — structured SERP data for the researcher
-- `VERCEL_TOKEN` — lets the deploy engineer push previews non-interactively
+- `SERPER_API_KEY` — structured competitor SERP data for the researcher
+- `VERCEL_TOKEN` — lets the deploy engineer push to Vercel non-interactively
 
-## SEO strategy
+## SEO strategy — read first
 
-A/B testing 100 variants of the same page is a duplicate-content minefield for SEO. The A11y + SEO Auditor enforces:
+Two cases per concept:
 
-1. One **canonical** variant; every other variant's `<link rel="canonical">` points at it.
-2. `noindex, follow` on every non-canonical variant.
-3. Sitemap contains ONLY the canonical URL.
-4. Never `robots.txt` disallow — blocked pages can't emit canonical headers.
-5. Internal links always point at the canonical URL.
+- **Case A** — concepts target the same audience + same keyword cluster: pick one canonical, all others canonicalise to it with `noindex, follow`.
+- **Case B** — concepts target distinct audiences/keywords (one for ops teams, one for indie devs, etc.): each is its own canonical, indexed independently.
+
+The A11y + SEO Auditor decides per concept based on the Director's direction theses. Default to Case A when intent is shared; never use `robots.txt` disallow (blocked pages can't emit canonical headers).
 
 ## Runtime
 
-- `claude-code / sonnet` throughout. Creative and code-heavy work, reasoning quality matters.
+`claude-code / sonnet` throughout. Creative + code-heavy work, reasoning quality matters.
 
 ## Import
 
 ```
-github://<your-org>/molecule-starter-template-orgs/ux-ab-lab
+github://Molecule-AI/molecule-ai-org-template-ux-ab-lab
 ```
