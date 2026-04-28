@@ -48,9 +48,11 @@ defaults:
   initial_prompt: |
     You just started. Set up silently — do NOT contact other agents yet.
     1. Read /configs/system-prompt.md — this defines YOUR role
-    2. Use commit_memory to save your role summary and the variant
-       numbering scheme (v01-v10)
-    3. Wait for the Design Director's kickoff brief.
+    2. Check /workspace/ for existing work from a previous session
+    3. If /workspace/directions.md exists, read it — that is your briefing
+    4. If /workspace/shared/ has briefs or specs, read those too
+    5. Begin your role immediately. Do NOT wait for anyone's kickoff.
+       If you have no existing work, produce your first deliverable now.
 
 workspaces:
   - name: Design Director
