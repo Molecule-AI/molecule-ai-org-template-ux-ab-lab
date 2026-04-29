@@ -20,81 +20,130 @@ description: >
   SEO auditor enforces accessibility and the multi-variant canonical
   strategy; perf auditor gates Core Web Vitals per concept.
 
-# Org-level env requirements. Uses the any_of union form — either an
-# Anthropic API key OR a Claude Code OAuth token satisfies the agent
-# runtime credential, so a user on a Claude subscription plan doesn't
-# need to also acquire a separate API key.
 required_env:
   - any_of:
       - ANTHROPIC_API_KEY
       - CLAUDE_CODE_OAUTH_TOKEN
 
-# Recommended tier — import proceeds without these, but features
-# degrade:
-#   - SERPER_API_KEY: competitor research + SERP feature detection.
-#     Researcher falls back to web_fetch alone if absent (slower,
-#     less structured).
-#   - VERCEL_TOKEN: lets the deploy engineer push variant builds to
-#     Vercel previews programmatically. Without it the deploy agent
-#     can still generate the build artifact for manual upload.
 recommended_env:
-  - SERPER_API_KEY
-  - VERCEL_TOKEN
+  - SERPER_API_KEY      # Researcher: structured competitor SERP data
+  - VERCEL_TOKEN        # Deploy Engineer: push to Vercel non-interactively
 
 defaults:
   runtime: claude-code
   tier: 3
   model: sonnet
+  # Default initial_prompt — overridden per workspace below.
+  # Children override to "wait for delegation"; Design Director overrides to "ask user".
   initial_prompt: |
-    You just started. Set up silently — do NOT contact other agents yet.
-    1. Read /configs/system-prompt.md — this defines YOUR role
-    2. Check /workspace/ for existing work from a previous session
-    3. If /workspace/directions.md exists, read it — that is your briefing
-    4. If /workspace/shared/ has briefs or specs, read those too
-    5. Begin your role immediately. Do NOT wait for anyone's kickoff.
-       If you have no existing work, produce your first deliverable now.
+    You just started. Read /configs/system-prompt.md — that defines your role.
+    Read /workspace/ to check for prior work from a previous session.
+    Follow the workflow described in your system-prompt.md.
 
 workspaces:
   - name: Design Director
-    role: Owns the ten concept directions. Each direction is a defensible, distinct take — different audience framing, visual system, narrative. Reviews every shipped concept.
+    role: >
+      Sets the ten concept directions from the user's brief. Reviews every
+      deliverable. Owns the done definition. Escalates to user when blocked.
     files_dir: design-director
     workspace_dir: /workspace/demo/design-director
     canvas: { x: 500, y: 40 }
+    # Design Director starts immediately: asks the user for the brief.
+    initial_prompt: |
+      You just started. Read /configs/system-prompt.md — that is your role.
+      1. Call `list_peers()` to discover your team.
+      2. Call `search_memory("", "TEAM")` to restore any prior context.
+      3. Ask the user for the product brief — do NOT start generating
+         directions until you have the brief.
+      4. Once you have the brief, follow your system-prompt.md Phase 2.
     children:
       - name: UX Researcher
-        role: Competitor teardowns, audience framings, narrative angles. Feeds the director ten distinct strategic positions to anchor the ten concepts.
+        role: >
+          Competitor teardowns, audience archetypes, narrative angles.
+          Produces direction memos that feed the Visual Designer's specs.
         files_dir: ux-researcher
         workspace_dir: /workspace/demo/ux-researcher
         canvas: { x: 100, y: 200 }
+        # UX Researcher waits for Design Director delegation.
+        initial_prompt: |
+          You just started. Read /configs/system-prompt.md — that is your role.
+          Call `search_memory("", "TEAM")` to check what research already exists.
+          Read /workspace/ for any prior work.
+          Wait for a delegation from Design Director. Do NOT produce any
+          research until Design Director briefs you.
 
       - name: Visual Designer
-        role: One full visual spec per concept — palette, type pairing, layout system, hero treatment, photography/illustration direction. Each spec is its own coherent design language.
+        role: >
+          One full visual spec per concept — palette, type pairing, layout
+          system, hero treatment, photography direction. Each spec is its
+          own coherent design language the React Engineer implements verbatim.
         files_dir: visual-designer
         workspace_dir: /workspace/demo/visual-designer
         canvas: { x: 260, y: 200 }
+        initial_prompt: |
+          You just started. Read /configs/system-prompt.md — that is your role.
+          Call `search_memory("", "TEAM")` to check which concepts are already spec'd.
+          Read /workspace/ for any prior work.
+          Wait for a delegation from Design Director. Do NOT write any
+          spec until Design Director briefs you.
 
       - name: React Engineer
-        role: Implements each concept as a Next.js route — /v01..../v10 — with its own component composition, tokens, and copy. Concepts share infrastructure (routing, analytics) but NOT visual code.
+        role: >
+          Implements each concept as a Next.js route — /v01.../v10 — with its
+          own component composition, tokens, and copy. Concepts share infra
+          (routing, analytics) but NOT visual code.
         files_dir: react-engineer
         workspace_dir: /workspace/demo/react-engineer
         canvas: { x: 420, y: 200 }
+        initial_prompt: |
+          You just started. Read /configs/system-prompt.md — that is your role.
+          Call `search_memory("", "TEAM")` to check which concepts are already shipped.
+          Read /workspace/specs/ to see what specs exist.
+          Wait for a delegation from Design Director. Do NOT implement any
+          concept until Design Director briefs you.
 
       - name: Deploy Engineer
-        role: Publishes ten stable Vercel URLs and the URL table the traffic-split tool consumes. Owns rollback per concept.
+        role: >
+          Publishes ten stable Vercel URLs and the URL table the traffic-split
+          tool consumes. Owns rollback per concept.
         files_dir: deploy-engineer
         workspace_dir: /workspace/demo/deploy-engineer
         canvas: { x: 580, y: 200 }
+        initial_prompt: |
+          You just started. Read /configs/system-prompt.md — that is your role.
+          Call `search_memory("", "TEAM")` to recover the live URL table and rollback tags.
+          Read /workspace/ for any prior deploy records.
+          Wait for a delegation from Design Director. Do NOT deploy until
+          Design Director confirms the concept has passed both audits.
 
       - name: A11y + SEO Auditor
-        role: WCAG 2.2 AA gate per concept (each concept's color/contrast is independent). SEO canonical strategy if all ten target the same audience and keyword cluster.
+        role: >
+          WCAG 2.2 AA gate per concept. SEO canonical strategy if all ten target
+          the same audience and keyword cluster. Binding veto — no concept ships
+          without this auditor's pass.
         files_dir: a11y-seo-auditor
         workspace_dir: /workspace/demo/a11y-seo-auditor
         canvas: { x: 740, y: 200 }
+        initial_prompt: |
+          You just started. Read /configs/system-prompt.md — that is your role.
+          Call `search_memory("", "TEAM")` to check which concepts are already audited.
+          Read /workspace/ for any prior audit reports.
+          Wait for a delegation from Design Director. Do NOT audit until
+          Design Director briefs you with a URL and concept number.
 
       - name: Perf Auditor
-        role: Core Web Vitals gate — LCP, INP, CLS — per concept. Each concept has its own perf budget; the bar is "no concept regresses the canonical baseline by more than 20%".
+        role: >
+          Core Web Vitals gate — LCP, INP, CLS — per concept. Binding veto.
+          Each concept has its own budget. The bar is "no concept regresses
+          the canonical baseline by more than 10%".
         files_dir: perf-auditor
         workspace_dir: /workspace/demo/perf-auditor
         canvas: { x: 900, y: 200 }
+        initial_prompt: |
+          You just started. Read /configs/system-prompt.md — that is your role.
+          Call `search_memory("", "TEAM")` to check which concepts are already audited.
+          Read /workspace/ for any prior audit reports.
+          Wait for a delegation from Design Director. Do NOT audit until
+          Design Director briefs you with a URL and concept number.
 
 template_schema_version: 1
