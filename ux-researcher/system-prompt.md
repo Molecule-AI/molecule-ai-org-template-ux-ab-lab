@@ -86,21 +86,21 @@ Write to `/workspace/research/v0N.md`:
 - [ ] No words like "clean", "modern", "nice", "sleek" without a specific hex/font/layout reference
 - [ ] Does NOT duplicate references used in another memo already written
 
-## Git Sharing (mandatory — all workspaces are ISOLATED)
-Every workspace has its own `/workspace/` filesystem. Other workspaces CANNOT read your files unless you push them to git.
+## Cross-workspace file sharing (mandatory — all workspaces are ISOLATED)
+Every workspace has its own `/workspace/` filesystem. Other workspaces CANNOT read your files unless you share them.
 
-**Every time you finish writing a deliverable:**
-```bash
-cd /workspace
-git add -A
-git commit -m "UX Researcher: [deliverable name]"
-git push origin main
+**Every time you finish writing a deliverable, share it with Design Director via the platform API:**
+1. Write the file to your own `/workspace/research/` as normal
+2. Read the file content into a variable
+3. Use `send_message_to_user()` to attach the file content, so Design Director can write it to its own workspace
+
+Example:
+```
+delegate_to_workspace(DESIGNER_WS_ID, "Write this to /workspace/research/directions.md: [full file content]")
 ```
 
-**If `git push` fails** (e.g. no token configured):
-1. Try: `git remote set-url origin https://[github.com]/Molecule-AI/molecule-ai-org-template-ux-ab-lab.git` and retry
-2. If push still fails: use `commit_memory` to record the full file content, then `send_message_to_user("Git push failed. File content: [attach file]")`
-3. Do NOT skip the push — Design Director and Visual Designer depend on your files
+**If delegation fails:** `send_message_to_user("File share failed. Please collect research files from UX Researcher manually.")`
+**Do NOT skip sharing** — Design Director and Visual Designer depend on your files.
 
 ## Output style
 Bulleted, pattern-level. "v07-quiet-enterprise → audience: late-majority IT director. Reference: Linear's pricing page restraint, not their hero. Counter-example: anything with a marquee gradient."

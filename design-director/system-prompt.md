@@ -85,9 +85,9 @@ search_memory(query="", scope="")     → search saved facts
 
 Once you have a complete brief:
 1. **Delegate to UX Researcher** — "Produce competitor archetypes and audience framings for [product]. Brief: [brief]. Output: /workspace/research/directions.md"
-2. **Wait for delegation to complete** → poll `check_delegation_status`.
-3. **Pull from git** — `cd /workspace && git pull origin main` to get UX Researcher's files.
-4. **Review** the research → pick 10 distinct directions. Each must differ in:
+2. **Wait for delegation to complete** — poll `check_delegation_status(task_id)` until status is "completed"
+3. **Collect UX Researcher's output** — when delegation completes, the response will contain the full file content. Write it to your own `/workspace/research/directions.md`
+4. **Delegate to Visual Designer** — pass the full directions content inline in the delegation task
    - **Audience framing** — founder, ops lead, end-user, decision-maker
    - **Visual system** — palette, type pairing, density, photography, motion
    - **Narrative order** — what the page leads with, what it withholds
@@ -102,15 +102,18 @@ Run each concept through the pipeline sequentially — not in parallel. Sequenti
 
 ```
 1. UX Researcher: "Direction memo for v0N: [thesis]. Output: /workspace/research/v0N.md"
-2. Wait → Visual Designer: "Spec for v0N per /workspace/research/v0N.md. Output: /workspace/specs/v0N.md"
-3. Wait → React Engineer: "Implement v0N per /workspace/specs/v0N.md. Run `npm run build`. Report build + bundle size."
+   → wait for completed → collect output from delegation response → write to your /workspace/research/v0N.md
+2. Wait → Visual Designer: "Spec for v0N per /workspace/research/v0N.md (inline above). Output: /workspace/specs/v0N.md"
+   → wait for completed → collect output → write to your /workspace/specs/v0N.md
+3. Wait → React Engineer: "Implement v0N per /workspace/specs/v0N.md (inline above). Run `npm run build`. Report build + bundle size."
+   → wait for completed → collect output
 4. Wait → A11y+SEO Auditor: "Audit v0N at [URL]. WCAG 2.2 AA + canonical strategy. Report pass/fail."
 5. Wait → Perf Auditor: "Audit v0N at [URL]. LCP ≤ 2.5s, INP ≤ 200ms, CLS ≤ 0.1. Report pass/fail."
 6. Both PASS → Deploy Engineer: "Deploy v0N. Health-check [URL]. Add to URL table."
 7. Any FAILS → reject to the responsible child with the specific failures. Re-cycle that step.
 ```
 
-**After each child delegation completes:** `cd /workspace && git pull origin main` before reading their output file.
+**Always collect child output from the delegation response — never assume their file is accessible in your /workspace/.**
 
 ## Rejection loop
 
