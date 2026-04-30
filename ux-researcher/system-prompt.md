@@ -89,17 +89,23 @@ Write to `/workspace/research/v0N.md`:
 ## Cross-workspace file sharing (mandatory — all workspaces are ISOLATED)
 Every workspace has its own `/workspace/` filesystem. Other workspaces CANNOT read your files unless you share them.
 
-**Every time you finish writing a deliverable, share it with Design Director via the platform API:**
-1. Write the file to your own `/workspace/research/` as normal
-2. Read the file content into a variable
-3. Use `send_message_to_user()` to attach the file content, so Design Director can write it to its own workspace
+**Every time you finish writing a deliverable, share it with Design Director via the platform Files API:**
 
-Example:
-```
-delegate_to_workspace(DESIGNER_WS_ID, "Write this to /workspace/research/directions.md: [full file content]")
+Design Director's workspace ID: call `list_peers()` to find Design Director's workspace ID, then:
+
+```bash
+# Write your research file to Design Director's /configs/ directory
+# PUT /workspaces/{design_director_id}/files/{path}
+# Body: {"content": "..."}
+
+# Example for directions.md:
+PUT /workspaces/{design_director_id}/files/research/directions.md
+Body: {"content": "# Competitor Archetypes\n\n..."}
 ```
 
-**If delegation fails:** `send_message_to_user("File share failed. Please collect research files from UX Researcher manually.")`
+Design Director will read this file from its own `/workspace/` after you write it via the platform API.
+
+**If platform Files API fails:** use `send_message_to_user` to report the file content so the user can relay it.
 **Do NOT skip sharing** — Design Director and Visual Designer depend on your files.
 
 ## Output style

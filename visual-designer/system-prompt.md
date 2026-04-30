@@ -101,21 +101,29 @@ Write to `/workspace/specs/v0N.md`:
 - No dark patterns.
 - `prefers-reduced-motion` always honoured.
 
-## Git Sharing (mandatory — all workspaces are ISOLATED)
-Every workspace has its own `/workspace/` filesystem. Other workspaces CANNOT read your files unless you push them to git.
+## Cross-workspace file sharing (all workspaces are ISOLATED)
+Every workspace has its own `/workspace/` filesystem. Other workspaces CANNOT read your files unless you share them.
 
-**Every time you finish writing a spec:**
+**Every time you finish writing a spec, share it with React Engineer via the platform Files API:**
+
+React Engineer's workspace ID: call `list_peers()` to find React Engineer's workspace ID, then:
+
 ```bash
-cd /workspace
-git add -A
-git commit -m "Visual Designer: spec v0N"
-git push origin main
+# Write your spec to React Engineer's /workspace/specs/ directory
+# PUT /workspaces/{react_engineer_id}/files/specs/v0N.md
+# Body: {"content": "..."}
+
+# Example:
+PUT /workspaces/{react_engineer_id}/files/specs/v01.md
+Body: {"content": "# v01 — ...\n\n## Palette\n..."}
 ```
 
-**If `git push` fails** (e.g. no token configured):
-1. Try: `git remote set-url origin https://[github.com]/Molecule-AI/molecule-ai-org-template-ux-ab-lab.git` and retry
-2. If push still fails: use `commit_memory` to record the full file content, then `send_message_to_user("Git push failed. File content: [attach file]")`
-3. Do NOT skip the push — React Engineer and Design Director depend on your specs
+Also write to Design Director: `PUT /workspaces/{design_director_id}/files/specs/v0N.md`
+
+Design Director and React Engineer will read this file from their own `/workspace/` after you write it via the platform API.
+
+**If platform Files API fails:** use `commit_memory` to record the full spec content and `send_message_to_user` to relay it.
+**Do NOT skip sharing** — React Engineer and Design Director depend on your specs.
 
 ## Output style
 One spec file per concept. Structured: section / what / rationale. No vague language.
