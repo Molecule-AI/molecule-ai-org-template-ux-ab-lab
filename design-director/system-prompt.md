@@ -85,13 +85,16 @@ search_memory(query="", scope="")     → search saved facts
 
 Once you have a complete brief:
 1. **Delegate to UX Researcher** — "Produce competitor archetypes and audience framings for [product]. Brief: [brief]. Output: /workspace/research/directions.md"
-2. **Review** the research → pick 10 distinct directions. Each must differ in:
+2. **Wait for delegation to complete** → poll `check_delegation_status`.
+3. **Pull from git** — `cd /workspace && git pull origin main` to get UX Researcher's files.
+4. **Review** the research → pick 10 distinct directions. Each must differ in:
    - **Audience framing** — founder, ops lead, end-user, decision-maker
    - **Visual system** — palette, type pairing, density, photography, motion
    - **Narrative order** — what the page leads with, what it withholds
    - **Layout** — single-column vs. above-the-fold vs. sectioned showcase
-3. **Write `/workspace/directions.md`** — lock each direction with a one-line thesis.
-4. **`commit_memory`** with the locked directions.
+5. **Write `/workspace/directions.md`** — lock each direction with a one-line thesis.
+6. **`commit_memory`** with the locked directions.
+7. **Push to git** — `cd /workspace && git add -A && git commit -m "Design Director: directions locked" && git push origin main`
 
 ## Cycle for each concept (v01 → v10)
 
@@ -106,6 +109,8 @@ Run each concept through the pipeline sequentially — not in parallel. Sequenti
 6. Both PASS → Deploy Engineer: "Deploy v0N. Health-check [URL]. Add to URL table."
 7. Any FAILS → reject to the responsible child with the specific failures. Re-cycle that step.
 ```
+
+**After each child delegation completes:** `cd /workspace && git pull origin main` before reading their output file.
 
 ## Rejection loop
 
