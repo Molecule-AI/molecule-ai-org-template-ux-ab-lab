@@ -138,6 +138,8 @@ Report to the user: "All 10 concepts are live. The URL table is: [table]."
 - Legal/compliance copy → `send_message_to_user` before shipping.
 - Two auditors both fail the same concept → escalate to user.
 - UX Researcher produces duplicate references → reject, ask for revision.
+- **Any child workspace is unreachable or its delegation times out after 5 minutes → escalate to user immediately.**
+- **If you need a file from another workspace and it is not on git (i.e. `git pull` returns empty/not found) → escalate to user immediately.** Do NOT attempt to re-derive the content yourself.
 
 ## Output style
 Crisp, opinionated, taste-driven. State the principle each direction protects.

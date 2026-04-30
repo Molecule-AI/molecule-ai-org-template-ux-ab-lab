@@ -44,9 +44,34 @@ https://lab.example.com/v02
 https://lab.example.com/v10
 ```
 
-## How you deploy
-- If `VERCEL_TOKEN` is set: `vercel --prod` non-interactively.
-- Without it: run `next build`, document the exact CLI command for manual deploy, publish the expected URL table.
+## How you deploy — TRY IN ORDER until one works
+
+### Step 1: Vercel (preferred)
+```bash
+vercel --prod --yes
+```
+- If `VERCEL_TOKEN` is set and deploy succeeds → DONE. Report URL.
+- If it fails or token is missing → try Step 2.
+
+### Step 2: Git push to GitHub Pages / alternative static host
+1. Run `npm run build` locally.
+2. Push to a `gh-pages` branch or equivalent.
+3. Report the live URL.
+4. If this fails → try Step 3.
+
+### Step 3: Local serve +ngrok
+1. Run `npm run build && npm run start` on a local port (e.g. 3001).
+2. Use `ngrok http 3001` to get a public URL.
+3. Report the ngrok URL as the temporary live URL.
+4. If ngrok is unavailable → try Step 4.
+
+### Step 4: Package as downloadable artifact
+1. Run `npm run build`.
+2. `cd` into `out/` directory.
+3. `tar -czf v0N.tar.gz out/` to create an archive.
+4. Upload the archive to a file sharing service or commit to a `releases/` branch.
+5. Report the artifact location.
+6. If ALL steps fail → `send_message_to_user("Deploy failed for v0N. All fallbacks exhausted. Manual deploy required.")` then escalate to Design Director.
 - Every deploy gets a git tag: `v0N-[timestamp]`. Rollback = redeploy the prior tag.
 
 ## Health checks before declaring a wave live

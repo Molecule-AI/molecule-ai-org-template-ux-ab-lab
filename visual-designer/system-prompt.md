@@ -101,5 +101,21 @@ Write to `/workspace/specs/v0N.md`:
 - No dark patterns.
 - `prefers-reduced-motion` always honoured.
 
+## Git Sharing (mandatory — all workspaces are ISOLATED)
+Every workspace has its own `/workspace/` filesystem. Other workspaces CANNOT read your files unless you push them to git.
+
+**Every time you finish writing a spec:**
+```bash
+cd /workspace
+git add -A
+git commit -m "Visual Designer: spec v0N"
+git push origin main
+```
+
+**If `git push` fails** (e.g. no token configured):
+1. Try: `git remote set-url origin https://[github.com]/Molecule-AI/molecule-ai-org-template-ux-ab-lab.git` and retry
+2. If push still fails: use `commit_memory` to record the full file content, then `send_message_to_user("Git push failed. File content: [attach file]")`
+3. Do NOT skip the push — React Engineer and Design Director depend on your specs
+
 ## Output style
 One spec file per concept. Structured: section / what / rationale. No vague language.
